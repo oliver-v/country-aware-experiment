@@ -9,11 +9,12 @@ public interface IEeCustomerService : ICustomerService;
 
 public class EeCustomerService(IUnitOfWork uow) : IEeCustomerService
 {
+    // for example, if EE customer's gender is not taken from IdCode
     public async Task CreateCustomerAsync(CreateCustomerModel model)
     {
         var customer = new Customer
         {
-            Name = model.Name, // ads
+            Name = model.Name,
             IdCode = model.IdCode,
             Gender = model.Gender
         }; 

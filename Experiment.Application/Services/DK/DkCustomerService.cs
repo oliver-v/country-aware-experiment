@@ -10,6 +10,7 @@ public interface IDkCustomerService : ICustomerService;
 
 public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
 {
+    // for example, if DK customer's gender is taken from IdCode
     public async Task CreateCustomerAsync(CreateCustomerModel model)
     {
         var customer = new Customer
