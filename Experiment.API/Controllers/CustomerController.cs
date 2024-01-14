@@ -15,15 +15,15 @@ public class CustomerController() : CountryAwareController
     {
         var cust = new Customer(); // <-- This is the Customer entity from the Domain layer and it's not supposed to be used here
 
-        var model = new CreateCustomerModel
+        var model = new CustomerModel
         {
             Name = request.Name,
             IdCode = request.IdCode,
             Gender = request.Gender
         };
 
-        await CustomerService.CreateCustomerAsync(model);
-        
-        return Ok();
+        var createdCustomer = await CustomerService.CreateCustomerAsync(model);
+
+        return Created("/api/v1/customers", createdCustomer);
     }
 }

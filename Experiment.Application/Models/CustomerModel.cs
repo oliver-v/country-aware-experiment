@@ -2,7 +2,7 @@ using Experiment.Domain;
 
 namespace Experiment.Application.Models;
 
-public record CreateCustomerModel
+public record CustomerModel
 {
     public string Name { get; init; }
     public string IdCode { get; init; }

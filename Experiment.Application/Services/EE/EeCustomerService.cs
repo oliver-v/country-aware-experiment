@@ -1,4 +1,5 @@
 using Experiment.Application.Models;
+using Experiment.Application.Validators.EE;
 using Experiment.Domain.Entities;
 using Experiment.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -9,20 +10,20 @@ public interface IEeCustomerService : ICustomerService;
 
 public class EeCustomerService(IUnitOfWork uow) : IEeCustomerService
 {
-    // for example, if EE customer's gender is not taken from IdCode
-    public async Task CreateCustomerAsync(CreateCustomerModel model)
+    private readonly EeCustomerValidator _validator = new();
+    
+    public async Task<Customer> CreateCustomerAsync(CustomerModel model)
     {
-        var customer = new Customer
+        var validationResult = _validator.Validate(model);
+        if (!validationResult.Success)
         {
-            Name = model.Name,
-            IdCode = model.IdCode,
-            Gender = model.Gender
-        }; 
-
+            throw new ArgumentException(validationResult.Message);
+        }
+       
         await using var transaction = await uow.BeginTransactionAsync();
         try
         {
-            uow.Customers.Add(customer);
+            uow.Customers.Add(validationResult.ValidatedCustomer);
             await uow.SaveChangesAsync();
             await uow.CommitTransactionAsync();
         }
@@ -32,5 +33,7 @@ public class EeCustomerService(IUnitOfWork uow) : IEeCustomerService
             throw new DbUpdateException(
                 $"Failed to create EE customer", e);
         }
+        
+        return validationResult.ValidatedCustomer;
     }
 }

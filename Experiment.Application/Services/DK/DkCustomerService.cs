@@ -1,5 +1,5 @@
 using Experiment.Application.Models;
-using Experiment.Domain;
+using Experiment.Application.Validators.DK;
 using Experiment.Domain.Entities;
 using Experiment.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +10,20 @@ public interface IDkCustomerService : ICustomerService;
 
 public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
 {
-    // for example, if DK customer's gender is taken from IdCode
-    public async Task CreateCustomerAsync(CreateCustomerModel model)
+    private readonly DkCustomerValidator _validator = new();
+    
+    public async Task<Customer> CreateCustomerAsync(CustomerModel model)
     {
-        var customer = new Customer
+        var validationResult = _validator.Validate(model);
+        if (!validationResult.Success)
         {
-            Name = model.Name,
-            IdCode = model.IdCode,
-            Gender = GetGender(model.IdCode)
-        };
+            throw new ArgumentException(validationResult.Message);
+        }
         
         await using var transaction = await uow.BeginTransactionAsync();
         try
         {
-            uow.Customers.Add(customer);
+            uow.Customers.Add(validationResult.ValidatedCustomer);
             await uow.CommitTransactionAsync();
             await uow.SaveChangesAsync();
         }
@@ -33,8 +33,7 @@ public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
             throw new DbUpdateException(
                 $"Failed to create DK customer", e);
         }
+        
+        return validationResult.ValidatedCustomer;
     }
-
-    private static Gender GetGender(string idCode) => 
-        idCode.Last() %2 == 1 ? Gender.MALE : Gender.FEMALE;
 }

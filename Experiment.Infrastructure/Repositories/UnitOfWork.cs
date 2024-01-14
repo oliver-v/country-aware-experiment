@@ -1,5 +1,4 @@
 using Experiment.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Experiment.Infrastructure.Repositories;

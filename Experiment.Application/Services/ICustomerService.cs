@@ -1,8 +1,9 @@
 using Experiment.Application.Models;
+using Experiment.Domain.Entities;
 
 namespace Experiment.Application.Services;
 
 public interface ICustomerService
 {
-    Task CreateCustomerAsync(CreateCustomerModel model);
+    Task<Customer> CreateCustomerAsync(CustomerModel model);
 }
