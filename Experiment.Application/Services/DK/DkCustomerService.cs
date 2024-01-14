@@ -24,8 +24,8 @@ public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
         try
         {
             uow.Customers.Add(validationResult.ValidatedCustomer);
-            await uow.CommitTransactionAsync();
             await uow.SaveChangesAsync();
+            await uow.CommitTransactionAsync();
         }
         catch (Exception e)
         {
