@@ -1,5 +1,6 @@
 using Experiment.Application.Models;
 using Experiment.Application.Validators.DK;
+using Experiment.Domain;
 using Experiment.Domain.Entities;
 using Experiment.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -35,5 +36,15 @@ public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
         }
         
         return validationResult.ValidatedCustomer;
+    }
+    
+    public async Task<Customer?> GetCustomerAsync(string idCode)
+    {
+        var customersWithContacts = await uow.Customers
+            .GetAll(x => x.Country == Country.DK && x.IdCode == "123")
+            .Include(x => x.Contacts)
+            .SingleOrDefaultAsync();
+
+        return customersWithContacts;
     }
 }

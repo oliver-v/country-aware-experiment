@@ -13,5 +13,9 @@ public class CustomerEntityConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
         builder.Property(x => x.IdCode).HasMaxLength(11).IsRequired();
+        
+        builder.HasMany<Contact>(x => x.Contacts)
+            .WithOne(x => x.Customer)
+            .HasForeignKey(x => x.CustomerId);
     }
 }

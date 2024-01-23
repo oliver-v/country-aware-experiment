@@ -1,39 +1,36 @@
-using Experiment.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
+using System;
 
 namespace Experiment.Infrastructure.Repositories;
 
 public interface IUnitOfWork
 {
-    IRepository<Customer> Customers { get; }
     Task<int> SaveChangesAsync();    
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task CommitTransactionAsync();
     Task RollbackTransactionAsync();
+    
+    ICustomerRepository Customers { get; }
 }
 
 public class UnitOfWork : IUnitOfWork
 {
     private readonly CustomerDbContext _context;
+    
+    public ICustomerRepository Customers { get; }
 
     public UnitOfWork(CustomerDbContext context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        Customers = new Repository<Customer>(_context);
+        _context = context ?? throw new ArgumentNullException("DbContext is null");
+        
+        Customers = new CustomerRepository(_context);
     }
-
-    public IRepository<Customer> Customers { get; }
 
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
     }
 
-    public void Dispose()
-    {
-        _context.Dispose();
-    }
-    
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
         return await _context.Database.BeginTransactionAsync();

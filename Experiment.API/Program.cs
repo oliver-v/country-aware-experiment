@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Experiment.API.Filters;
 using Experiment.Application.Services.DK;
 using Experiment.Application.Services.EE;
 using Experiment.Infrastructure;
@@ -18,9 +19,11 @@ builder.Services.AddDbContext<CustomerDbContext>(options =>
 });
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDkCustomerService, DkCustomerService>();
 builder.Services.AddScoped<IEeCustomerService, EeCustomerService>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 builder.Services.AddControllers(options =>
     {

@@ -1,51 +1,67 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Experiment.Infrastructure.Repositories;
 
 public interface IRepository<T> where T : class
 {
-    Task<IEnumerable<T>> GetAll();
-    Task<T> GetById(int id);
+    T? Get(int id);
+    IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null);
+    IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
     void Add(T entity);
-    void Update(T entity);
+    void AddRange(IEnumerable<T> entities);
     void Remove(T entity);
+    void RemoveRange(IEnumerable<T> entities);
 }
 
 
-public class Repository<T> : IRepository<T> where T : class
+public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 {
-    private readonly DbContext _context;
-    private readonly DbSet<T> _dbSet;
+    protected readonly DbContext Context;
 
     public Repository(DbContext context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _dbSet = _context.Set<T>();
+        Context = context;
     }
 
-    public async Task<IEnumerable<T>> GetAll()
+    public TEntity? Get(int id)
     {
-        return await _dbSet.ToListAsync();
+        return Context.Set<TEntity>().Find(id);
     }
 
-    public async Task<T> GetById(int id)
+    public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>>? filter = null)
     {
-        return await _dbSet.FindAsync(id);
+        if (filter != null)
+        {
+            return Context.Set<TEntity>().Where(filter);
+        }
+        
+        return Context.Set<TEntity>();
     }
 
-    public void Add(T entity)
+    public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate)
     {
-        _dbSet.Add(entity);
+        return Context.Set<TEntity>().Where(predicate);
     }
 
-    public void Update(T entity)
+    public void Add(TEntity entity)
     {
-        _dbSet.Attach(entity);
-        _context.Entry(entity).State = EntityState.Modified;
+        Context.Set<TEntity>().Add(entity);
     }
 
-    public void Remove(T entity)
+    public void AddRange(IEnumerable<TEntity> entities)
     {
-        _dbSet.Remove(entity);
+        Context.Set<TEntity>().AddRange(entities);
+    }
+
+    public void Remove(TEntity entity)
+    {
+        Context.Set<TEntity>().Remove(entity);
+    }
+
+    public void RemoveRange(IEnumerable<TEntity> entities)
+    {
+        Context.Set<TEntity>().RemoveRange(entities);
     }
 }
+

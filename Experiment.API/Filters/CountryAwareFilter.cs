@@ -1,9 +1,11 @@
-using Experiment.Application.Enums;
 using Experiment.Application.Services;
 using Experiment.Application.Services.DK;
 using Experiment.Application.Services.EE;
+using Experiment.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace Experiment.API.Filters;
 
 public class CountryAwareFilter : IActionFilter
 {
@@ -40,9 +42,9 @@ public class CountryAwareFilter : IActionFilter
     {
         switch (country)
         {
-            case Country.Denmark:
+            case Country.DK:
                 return _serviceProvider.GetRequiredService<IDkCustomerService>();
-            case Country.Estonia:
+            case Country.EE:
                 return _serviceProvider.GetRequiredService<IEeCustomerService>();
             default:
                 throw new ArgumentOutOfRangeException(nameof(country), country, "No matching CustomerService found for the country.");
