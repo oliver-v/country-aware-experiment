@@ -23,18 +23,7 @@ public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
 
         await uow.ExecuteInTransactionAsync(async () =>
         {
-            var customer = new Customer
-            {
-                Name = model.Name,
-                Country = Country.DK,
-                IdCode = model.IdCode,
-                Contacts = new List<Contact>
-                {
-                    new() { ContactType = "email", ContactValue = "test@test.com" }
-                }
-            };
-
-            uow.Customers.Add(customer);
+            uow.Customers.Add(validationResult.ValidatedCustomer);
             await uow.SaveChangesAsync();
         });
         
