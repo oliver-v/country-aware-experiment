@@ -1,4 +1,5 @@
 using Experiment.API.Models;
+using Experiment.Application.Models;
 using Experiment.Domain;
 using Experiment.Domain.Entities;
 using Experiment.Infrastructure.Repositories;
@@ -23,31 +24,15 @@ public class CustomerController : CountryAwareController
     {
         var cust = new Customer(); // <-- This is the Customer entity from the Domain layer and it's not supposed to be used here
 
-        // var model = new CustomerModel
-        // {
-        //     Name = request.Name,
-        //     IdCode = request.IdCode,
-        //     Gender = request.Gender
-        // };
-
-        // var createdCustomer = await CustomerService.CreateCustomerAsync(model);
-
-        unitOfWork.Customers.Add(new Customer
+        var model = new CustomerModel
         {
             Name = request.Name,
-            Country = country,
-            IdCode = request.IdCode,
-            Contacts = new List<Contact>
-            {
-                new() { ContactType = "email", ContactValue = "test@test.com"}
-            }
-        });
-        
-        await using var transaction = await unitOfWork.BeginTransactionAsync();
-        await unitOfWork.SaveChangesAsync();
-        await unitOfWork.CommitTransactionAsync();
+            IdCode = request.IdCode
+        };
 
-        return Created("/api/v1/customers", null);
+        var createdCustomer = await CustomerService.CreateCustomerAsync(model);
+
+        return Created("/api/v1/customers", createdCustomer);
     }
     
     [HttpGet]
@@ -60,6 +45,4 @@ public class CustomerController : CountryAwareController
 
         return Ok(customer);
     }
-    
-    
 }
