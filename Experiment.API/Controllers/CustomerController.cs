@@ -27,7 +27,8 @@ public class CustomerController : CountryAwareController
         var model = new CustomerModel
         {
             Name = request.Name,
-            IdCode = request.IdCode
+            IdCode = request.IdCode,
+            Gender = request.Gender
         };
 
         var createdCustomer = await CustomerService.CreateCustomerAsync(model);
