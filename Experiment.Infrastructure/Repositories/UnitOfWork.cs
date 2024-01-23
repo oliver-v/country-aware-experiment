@@ -9,6 +9,7 @@ public interface IUnitOfWork
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task CommitTransactionAsync();
     Task RollbackTransactionAsync();
+    Task ExecuteInTransactionAsync(Func<Task> action);
     
     ICustomerRepository Customers { get; }
 }
@@ -44,5 +45,20 @@ public class UnitOfWork : IUnitOfWork
     public async Task RollbackTransactionAsync()
     {
         await _context.Database.RollbackTransactionAsync();
+    }
+    
+    public async Task ExecuteInTransactionAsync(Func<Task> action)
+    {
+        await using var transaction = await BeginTransactionAsync();
+        try
+        {
+            await action();
+            await CommitTransactionAsync();
+        }
+        catch (Exception)
+        {
+            await RollbackTransactionAsync();
+            throw;
+        }
     }
 }

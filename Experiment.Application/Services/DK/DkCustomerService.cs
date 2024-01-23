@@ -20,20 +20,23 @@ public class DkCustomerService(IUnitOfWork uow) : IDkCustomerService
         {
             throw new ArgumentException(validationResult.Message);
         }
-        
-        await using var transaction = await uow.BeginTransactionAsync();
-        try
+
+        await uow.ExecuteInTransactionAsync(async () =>
         {
-            uow.Customers.Add(validationResult.ValidatedCustomer);
+            var customer = new Customer
+            {
+                Name = model.Name,
+                Country = Country.DK,
+                IdCode = model.IdCode,
+                Contacts = new List<Contact>
+                {
+                    new() { ContactType = "email", ContactValue = "test@test.com" }
+                }
+            };
+
+            uow.Customers.Add(customer);
             await uow.SaveChangesAsync();
-            await uow.CommitTransactionAsync();
-        }
-        catch (Exception e)
-        {
-            await uow.RollbackTransactionAsync();
-            throw new DbUpdateException(
-                $"Failed to create DK customer", e);
-        }
+        });
         
         return validationResult.ValidatedCustomer;
     }
